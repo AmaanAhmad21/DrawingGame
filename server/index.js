@@ -41,34 +41,52 @@ io.on('connection', (socket) => {
     }
   });
 
+  socket.on('clear-board', () => {
+    if (socket.id === currentDrawer) {
+      io.emit('clear-board');
+    }
+  });  
+
   // ✅ Handle chat
   socket.on('chat', (msg) => {
     if (!currentWord || guessedCorrectly) return;
-
+  
     const sender = usernames[socket.id] || socket.id;
-
+  
     if (msg.toLowerCase().trim() === currentWord.toLowerCase()) {
       guessedCorrectly = true;
+  
       io.emit('correct-guess', {
         word: currentWord,
         guesser: sender
       });
-      setTimeout(() => startNewRound(), 3000);
-    } else {
+  
+      let countdown = 5;
+      const interval = setInterval(() => {
+        io.emit('round-countdown', countdown);
+  
+        if (countdown === 0) {
+          clearInterval(interval);
+          io.emit('round-countdown', null); // clear on client
+          startNewRound(); // 🔁 round actually starts here
+        }
+        countdown--;
+      }, 1000);
+    } 
+    else {
       io.emit('chat', {
         from: sender,
         message: msg
       });
     }
-  });
+  });  
 
   // ✅ Handle disconnection
   socket.on('disconnect', () => {
     console.log(`❌ Client disconnected: ${socket.id}`);
     players = players.filter(id => id !== socket.id);
     delete usernames[socket.id];
-
-    // Optional: End round or reassign drawer if current one disconnects
+    
     if (socket.id === currentDrawer) {
       guessedCorrectly = true;
       setTimeout(() => startNewRound(), 1000);
@@ -81,6 +99,8 @@ function startNewRound() {
   guessedCorrectly = false;
 
   if (players.length < 2) return;
+
+  io.emit('clear-board');
 
   currentDrawer = players[Math.floor(Math.random() * players.length)];
   currentWord = words[Math.floor(Math.random() * words.length)];

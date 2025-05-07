@@ -5,13 +5,65 @@
   <title>Draw & Guess Game</title>
   <style>
     body { font-family: sans-serif; margin: 0; }
-    #login { position: fixed; inset: 0; background: #00000088; display: flex; align-items: center; justify-content: center; }
-    #game { display: none; padding: 20px; }
-    #word-display { font-size: 24px; margin-bottom: 10px; }
-    #chatbox { border: 1px solid #ccc; height: 200px; overflow-y: scroll; padding: 10px; background: #fafafa; }
-    #chat-form { margin-top: 10px; display: flex; gap: 10px; }
-    #chat-input { flex: 1; }
-    canvas { border: 1px solid #000; }
+    #login {
+      position: fixed;
+      inset: 0;
+      background: #00000088;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #game {
+      display: none;
+      padding: 20px;
+    }
+    #word-display {
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+
+    #game-layout {
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+    }
+
+    #canvas-container {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    canvas {
+      border: 1px solid #000;
+    }
+
+    #clearBtn {
+      margin-top: 10px;
+      display: none;
+    }
+
+    #chat {
+      width: 250px;
+    }
+
+    #chatbox {
+      border: 1px solid #ccc;
+      height: 300px;
+      overflow-y: scroll;
+      padding: 10px;
+      background: #fafafa;
+    }
+
+    #chat-form {
+      margin-top: 10px;
+      display: flex;
+      gap: 10px;
+    }
+
+    #chat-input {
+      flex: 1;
+    }
   </style>
 </head>
 <body>
@@ -19,20 +71,30 @@
 <div id="login">
   <div>
     <h2>Enter your username</h2>
-    <input type="text" id="username" placeholder="e.g. Amaan" />
+    <input type="text" id="username" placeholder="e.g. The Flash" />
     <button onclick="startGame()">Join</button>
   </div>
 </div>
 
 <div id="game">
   <div id="word-display"></div>
-  <canvas id="canvas" width="600" height="400"></canvas>
 
-  <div id="chatbox"></div>
-  <form id="chat-form">
-    <input id="chat-input" placeholder="Type your guess..." autocomplete="off" />
-    <button type="submit">Send</button>
-  </form>
+  <div id="countdown" style="font-weight: bold; margin-top: 10px;"></div>
+
+  <div id="game-layout">
+    <div id="canvas-container">
+      <canvas id="canvas" width="600" height="400"></canvas>
+      <button id="clearBtn">Clear Board</button>
+    </div>
+
+    <div id="chat">
+      <div id="chatbox"></div>
+      <form id="chat-form">
+        <input id="chat-input" placeholder="Type your guess..." autocomplete="off" />
+        <button type="submit">Send</button>
+      </form>
+    </div>
+  </div>
 </div>
 
 <script src="/socket.io/socket.io.js"></script>

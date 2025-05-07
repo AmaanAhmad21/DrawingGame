@@ -7,6 +7,8 @@ let isDrawing = false;
 let lastX = 0;
 let lastY = 0;
 
+const clearBtn = document.getElementById('clearBtn');
+
 // === Game Setup ===
 function startGame() {
   const username = document.getElementById('username').value.trim();
@@ -63,16 +65,29 @@ socket.on('draw', (data) => {
   ctx.stroke();
 });
 
+clearBtn.addEventListener('click', () => {
+    if (isDrawer) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      socket.emit('clear-board');
+    }
+  });  
+
 // === Word Display ===
 socket.on('your-turn', (word) => {
   isDrawer = true;
   document.getElementById('word-display').innerText = `Your word: ${word}`;
+  clearBtn.style.display = 'block';
 });
 
 socket.on('guessing-time', (blanks) => {
   isDrawer = false;
   document.getElementById('word-display').innerText = `Guess the word: ${blanks}`;
+  clearBtn.style.display = 'none';
 });
+
+socket.on('clear-board', () => {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  });
 
 // === Chat ===
 const chatbox = document.getElementById('chatbox');
@@ -94,4 +109,15 @@ socket.on('chat', ({ from, message }) => {
 socket.on('correct-guess', ({ word, guesser }) => {
   chatbox.innerHTML += `<div style="color: green;"><strong>${guesser} guessed it!</strong> The word was <em>${word}</em>.</div>`;
   chatbox.scrollTop = chatbox.scrollHeight;
+});
+
+// === Timer countdown ===
+const countdownDiv = document.getElementById('countdown');
+
+socket.on('round-countdown', (seconds) => {
+  if (seconds === null) {
+    countdownDiv.innerText = '';
+  } else {
+    countdownDiv.innerText = `Next round in ${seconds}...`;
+  }
 });
