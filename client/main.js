@@ -111,13 +111,30 @@ socket.on('correct-guess', ({ word, guesser }) => {
   chatbox.scrollTop = chatbox.scrollHeight;
 });
 
-// === Timer countdown ===
-const countdownDiv = document.getElementById('countdown');
+// === Timer Display ===
+const gameCountdownDiv = document.getElementById('game-countdown');
+const roundCountdownDiv = document.getElementById('round-countdown');
+
+socket.on('round-timer', (seconds) => {
+  if (seconds === null) {
+    gameCountdownDiv.innerText = '';
+  } else if (seconds === 0) {
+    gameCountdownDiv.innerText = "Time's up! Waiting for next round...";
+  } else {
+    gameCountdownDiv.innerText = `Time Left: ${seconds} seconds`;
+  }
+});
 
 socket.on('round-countdown', (seconds) => {
   if (seconds === null) {
-    countdownDiv.innerText = '';
+    roundCountdownDiv.innerText = '';
   } else {
-    countdownDiv.innerText = `Next round in ${seconds}...`;
+    roundCountdownDiv.innerText = `Next round in ${seconds}...`;
   }
+});
+
+// Listen for game-ended event
+socket.on('game-ended', () => {
+  document.getElementById('word-display').innerText = 'Game ended. Waiting for more players...';
+  ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas
 });
