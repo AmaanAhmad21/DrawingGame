@@ -2,67 +2,175 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Draw & Guess Game</title>
   <style>
-    body { font-family: sans-serif; margin: 0; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f5f7fa;
+      margin: 0;
+      padding: 0;
+      color: #333;
+      line-height: 1.5;
+    }
+    
+    /* Login screen */
     #login {
       position: fixed;
       inset: 0;
-      background: #00000088;
+      background: rgba(0, 0, 0, 0.75);
       display: flex;
       align-items: center;
       justify-content: center;
+      z-index: 100;
     }
+    
+    #login > div {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      text-align: center;
+      width: 300px;
+    }
+    
+    #login h2 {
+      margin-top: 0;
+      color: #4361ee;
+      margin-bottom: 20px;
+    }
+    
+    #username {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-size: 16px;
+      box-sizing: border-box;
+    }
+    
+    button {
+      background-color: #4361ee;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background-color 0.2s;
+    }
+    
+    button:hover {
+      background-color: #3a56d4;
+    }
+    
+    /* Game area */
     #game {
       display: none;
+      max-width: 1100px;
+      margin: 0 auto;
       padding: 20px;
     }
+    
     #word-display {
       font-size: 24px;
-      margin-bottom: 10px;
+      font-weight: bold;
+      padding: 10px 15px;
+      background: #edf2ff;
+      border-radius: 5px;
+      margin-bottom: 15px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     }
-
+    
+    #round-countdown {
+      font-weight: bold;
+      color: #ff6b6b;
+      margin: 15px 0 10px;
+    }
+    
     #game-layout {
       display: flex;
       gap: 20px;
-      align-items: flex-start;
     }
-
+    
+    /* Canvas area */
     #canvas-container {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
+      flex: 1;
     }
-
+    
     canvas {
-      border: 1px solid #000;
+      background-color: white;
+      border-radius: 5px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      border: 1px solid #ddd;
     }
-
+    
     #clearBtn {
       margin-top: 10px;
+      background-color: #ff6b6b;
       display: none;
     }
-
+    
+    #clearBtn:hover {
+      background-color: #f55;
+    }
+    
+    /* Chat area */
     #chat {
-      width: 250px;
+      width: 280px;
     }
-
+    
+    #game-countdown {
+      font-weight: bold;
+      padding: 8px 12px;
+      background-color: #edf2ff;
+      border-radius: 5px 5px 0 0;
+      border: 1px solid #ddd;
+      border-bottom: none;
+    }
+    
     #chatbox {
-      border: 1px solid #ccc;
-      height: 300px;
-      overflow-y: scroll;
-      padding: 10px;
-      background: #fafafa;
+      height: 370px;
+      overflow-y: auto;
+      padding: 12px;
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 0 0 5px 5px;
+      margin-bottom: 10px;
     }
-
+    
+    #chatbox div {
+      margin-bottom: 8px;
+    }
+    
+    #chatbox div[style*="color: green"] {
+      background-color: #e6ffee;
+      padding: 6px 10px;
+      border-radius: 5px;
+    }
+    
     #chat-form {
-      margin-top: 10px;
       display: flex;
-      gap: 10px;
+      gap: 8px;
     }
-
+    
     #chat-input {
       flex: 1;
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-size: 15px;
+    }
+    
+    @media (max-width: 800px) {
+      #game-layout {
+        flex-direction: column;
+      }
+      
+      #chat {
+        width: 100%;
+      }
     }
   </style>
 </head>
@@ -70,24 +178,24 @@
 
 <div id="login">
   <div>
-    <h2>Enter your username</h2>
-    <input type="text" id="username" placeholder="e.g. The Flash" />
-    <button onclick="startGame()">Join</button>
+    <h2>Draw & Guess Game</h2>
+    <input type="text" id="username" placeholder="Enter your username" />
+    <button onclick="startGame()">Join Game</button>
   </div>
 </div>
 
 <div id="game">
-  <div id="word-display"></div>
-
-  <div id="round-countdown" style="font-weight: bold; margin-top: 10px;"></div>
+  <div id="word-display">Waiting for players...</div>
+  <div id="round-countdown"></div>
 
   <div id="game-layout">
     <div id="canvas-container">
       <canvas id="canvas" width="600" height="400"></canvas>
       <button id="clearBtn">Clear Board</button>
     </div>
+    
     <div id="chat">
-      <div id="game-countdown" style="font-weight: bold; margin-bottom: 5px;"></div>
+      <div id="game-countdown">Time Left: --</div>
       <div id="chatbox"></div>
       <form id="chat-form">
         <input id="chat-input" placeholder="Type your guess..." autocomplete="off" />
